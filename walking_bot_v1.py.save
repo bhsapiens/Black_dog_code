@@ -1,0 +1,88 @@
+from __future__ import division
+import time
+from smbus import SMBus
+
+#Global Variables
+pwm1 = Adafruit_PCA9685.PCA9685(address=0x41, busnum=1)
+pwm2 = Adafruit_PCA9685.PCA9685(address=0x40, busnum=1)
+pwm1.set_pwm_freq(50)
+pwm2.set_pwm_freq(50)
+bus = SMBus(1)
+
+
+FL_sensor = 0
+FR_sensor = 0
+HL_sensor = 0
+HR_sensor = 0
+
+#Functions
+
+def adc_data_channel_1():
+    global FR_sensor
+    bus.write_i2c_block_data(0x48, 0x01,[0xC3,0x83])
+    adc0= bus.read_i2c_block_data(0x48, 0x00,2)
+    a= adc0[0] & 0xFFFF
+    b= adc0[1] & 0xFF
+    c= (a<<8)  | b
+    FR_sensor = c
+
+def adc_data_channel_2():
+    global FL_sensor
+    bus.write_i2c_block_data(0x48, 0x01,[0xD3,0x83])
+    adc0= bus.read_i2c_block_data(0x48, 0x00,2)
+    a= adc0[0] & 0xFFFF
+    b= adc0[1] & 0xFF
+    c= (a<<8)  | b
+    FL_sensor = c
+
+def adc_data_channel3():
+    global HL_sensor
+    bus.write_i2c_block_data(0x48, 0x01,[0xE3,0x83])
+    adc0= bus.read_i2c_block_data(0x48, 0x00,2)
+    a= adc0[0] & 0xFFFF
+    b= adc0[1] & 0xFF
+    c= (a<<8)  | b
+    HL_sensor = c
+
+def adc_data_channel_4():
+    global HR_sensor
+    bus.write_i2c_block_data(0x48, 0x01,[0xF3,0x83])
+    adc0= bus.read_i2c_block_data(0x48, 0x00,2)
+    a= adc0[0] & 0xFFFF
+    b= adc0[1] & 0xFF
+    c= (a<<8)  | b
+    HR_sensor = c
+
+while 1:
+    adc_data_channel1();
+    time.sleep(0.01)
+    adc_data_channel2();
+    time.sleep(0.01)
+    adc_data_channel3();
+    time.sleep(0.01)
+    adc_data_channel4();
+    #FL_sensor
+    #FR_sensor
+    #HL_sensor
+    #HR_sensor
+
+    encoder = subprocess.check_output("/home/pi/encoder/encoder_driver_v1");
+    encoder = [int(i) for i in output.split()]
+    #encoder[0]  HLK
+    #encoder[1]  HLH
+    #encoder[2]  HLA
+    #encoder[3]  HRA
+    #encoder[4]  HRH
+    #encoder[5]  HRK
+    #encoder[6]  FLK
+    #encoder[7]  FLH
+    #encoder[8]  FLA
+    #encoder[9]  FRA
+    #encoder[10] FRH
+    #encoder[11] FRK
+
+    motor_setpoint = [200, 200, 200, 200, 200,200,200,200,200,200,200,200]
+    #                 HRK  HRH  HRA  HLK  HLH
+    pwm1.set_pwm(0, 0, motor[0])
+    
+    time.sleep(1)
